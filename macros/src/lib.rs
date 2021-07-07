@@ -33,7 +33,10 @@ macro_rules! constants_enum {
                 match segment.next_int::<$type>()? {
                     $( $const_val => Ok(Self::$const_name), )+
                     other => Err(
-                        Self::Error::InvalidConstant(other as u64, stringify!($name).into())),
+                        Self::Error::InvalidConstant {
+                            value_given: other as u64,
+                            constant_type: stringify!($name).into()
+                        }),
                 }
             }
         }
@@ -68,4 +71,13 @@ macro_rules! flags {
             }
         }
     };
+}
+
+#[macro_export]
+macro_rules! parsable {
+    () => {
+        #[derive(::segsource::TryFromSegment)]
+        #[try_from_item_type(u8)]
+        #[try_from_error(::crate::error::Error)]
+    }
 }

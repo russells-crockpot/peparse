@@ -2,8 +2,7 @@ pub use crate::constants::coff::*;
 use segsource::TryFromSegment;
 
 #[derive(TryFromSegment)]
-#[try_from_item_type(u8)]
-#[try_from_error(crate::Error)]
+#[from_seg(crate::Error)]
 pub struct CoffHeader {
     machine: Machine,
     number_of_sections: u16,

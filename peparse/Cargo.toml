@@ -1,6 +1,6 @@
 [package]
 name = "peparse"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2018"
 
 [dependencies]
@@ -11,9 +11,9 @@ snafu = "0.6"
 
 [dependencies.segsource]
 path = "../../segsource/segsource"
-#features = ["memmap", "async", "with_bytes"]
+features = ["memmap", "bytes"]
 version = "0.1.0"
 
 [dependencies.peparse-internal-macros]
 path = "../macros"
-version = "0.1.0"
+version = "0.0.1"

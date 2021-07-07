@@ -1,6 +1,6 @@
 constants_enum! {
     name: Machine,
-    doc: "None",
+    doc: "",
     value_type: u16,
     items: [
         (Unknown, 0x0, "The content of this field is assumed to be applicable to any machine type"),
@@ -41,7 +41,7 @@ flags! {
         (LINE_NUMS_STRIPPED, 0x0004, "COFF line numbers have been removed. This flag is deprecated and should be zero."),
         (LOCAL_SYMS_STRIPPED, 0x0008, "COFF symbol table entries for local symbols have been removed. This flag is deprecated and should be zero."),
         (AGGRESSIVE_WS_TRIM, 0x0010, "Obsolete. Aggressively trim working set. This flag is deprecated for Windows 2000 and later and must be zero."),
-        (LARGE_ADDRESS_AWARE, 0x0020, "Application can handle > 2-GB addresses., 0x0040, This flag is reserved for future use."),
+        (LARGE_ADDRESS_AWARE, 0x0020, "Application can handle > 2-GB addresses."),
         (BYTES_REVERSED_LO, 0x0080, "Little endian: the least significant bit (LSB) precedes the most significant bit (MSB) in memory. This flag is deprecated and should be zero."),
         (THIRTY_TWO_BIT_MACHINE, 0x0100, "Machine is based on a 32-bit-word architecture."),
         (DEBUG_STRIPPED, 0x0200, "Debugging information is removed from the image file."),
@@ -51,5 +51,33 @@ flags! {
         (DLL, 0x2000, "The image file is a dynamic-link library (DLL). Such files are considered executable files for almost all purposes, although they cannot be directly run."),
         (UP_SYSTEM_ONLY, 0x4000, "The file should be run only on a uniprocessor machine."),
         (BYTES_REVERSED_HI, 0x8000, "Big endian: the MSB precedes the LSB in memory. This flag is deprecated and should be zero."),
+    ]
+}
+constants_enum! {
+    name: Comdat,
+    doc: "",
+    value_type: u8,
+    items: [
+        (NoDuplicates, 1, "If this symbol is already defined, the linker issues a \"multiply defined symbol\" error."),
+        (Any, 2, "Any section that defines the same COMDAT symbol can be linked; the rest are removed."),
+        (SameSize, 3, "The linker chooses an arbitrary section among the definitions for this symbol. If all definitions are not the same size, a \"multiply defined symbol\" error is issued."),
+        (ExactMatch, 4, "The linker chooses an arbitrary section among the definitions for this symbol. If all definitions do not match exactly, a \"multiply defined symbol\" error is issued."),
+        (Associative, 5, "The section is linked if a certain other COMDAT section is linked. This other section is indicated by the Number field of the auxiliary symbol record for the section definition. This setting is useful for definitions that have components in multiple sections (for example, code in one and data in another), but where all must be linked or discarded as a set. The other section this section is associated with must be a COMDAT section, which can be another associative COMDAT section. An associative COMDAT section's section association chain can't form a loop. The section association chain must eventually come to a COMDAT section that doesn't have IMAGE_COMDAT_SELECT_ASSOCIATIVE set."),
+        (Largest, 6, "The linker chooses the largest definition from among all of the definitions for this symbol. If multiple definitions have this size, the choice between them is arbitrary."),
+
+    ]
+}
+
+flags! {
+    name: WinCertificateOptions,
+    doc: "",
+    value_type: u16,
+    items: [
+        (Revision10, 0x0100, "Version 1, legacy version of the Win_Certificate structure. It is supported only for purposes of verifying legacy Authenticode signatures"),
+        (Revision20, 0x0200, "Version 2 is the current version of the Win_Certificate structure."),
+        (RtTypeX509, 0x0001, "bCertificate contains an X.509 Certificate"),
+        (RtTypePkcsSignedData, 0x0002, "bCertificate contains a PKCS#7 SignedData structure"),
+        (RtTypeReserved1, 0x0003, "Reserved"),
+        (RtTypeTsStackSigned, 0x0004, "Terminal Server Protocol Stack Certificate signing"),
     ]
 }

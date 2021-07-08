@@ -16,12 +16,12 @@ repos:
       - id: fmt
         #args: [--verbose, --]
       - id: clippy
-  - repo: https://github.com/codespell-project/codespell.git
-    rev: v1.17.1
-    hooks:
-      - id: codespell
-        exclude: .*(?:\.spelling-wordlist\.txt|\.lock|Cargo.toml|.vim)
-        args: [-I, .spelling-wordlist.txt]
+  #- repo: https://github.com/codespell-project/codespell.git
+    #rev: v1.17.1
+    #hooks:
+      #- id: codespell
+        #exclude: .*(?:\.spelling-wordlist\.txt|\.lock|Cargo.toml|.vim)
+        #args: [-I, .spelling-wordlist.txt]
         #args: [--verbose]
 
 # vi: shiftwidth=2

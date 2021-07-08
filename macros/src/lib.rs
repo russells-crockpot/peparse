@@ -7,6 +7,7 @@ macro_rules! constants_enum {
         doc: $doc:literal,
         value_type: $type:ty,
         items: [ $(($const_name:ident, $const_val:literal, $const_desc:literal),)+ ]
+        $(, @markers: $($marker:ident),+)?
     ) => {
         #[doc = $doc]
         pub enum $name {
@@ -16,10 +17,27 @@ macro_rules! constants_enum {
             )+
         }
 
+        $($(impl $marker for $name {})+)?
+
         impl ::std::fmt::Display for $name {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
                 match self {
                     $( Self::$const_name => stringify!($const_name).fmt(f), )+
+                }
+            }
+        }
+
+        impl ::core::convert::TryFrom<$type> for $name {
+            type Error = crate::Error;
+
+            fn try_from(value: $type) -> ::core::result::Result<Self, Self::Error> {
+                match value {
+                    $( $const_val => Ok(Self::$const_name), )+
+                    other => Err(
+                        Self::Error::InvalidConstant {
+                            value_given: other as u64,
+                            constant_type: stringify!($name).into()
+                        }),
                 }
             }
         }

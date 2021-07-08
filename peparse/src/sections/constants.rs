@@ -1,4 +1,13 @@
-pub mod debug;
+constants_enum! {
+    name: SectionNumber,
+    doc: "",
+    value_type: u16,
+    items: [
+        (Undefined, 0, "The symbol record is not yet assigned a section. A value of zero indicates that a reference to an external symbol is defined elsewhere. A value of non-zero is a common symbol with a size that is specified by the value."),
+        (Absolute, 0xffff, "The symbol has an absolute (non-relocatable) value and is not an address."),
+        (Debug, 0xfffe, "The symbol provides general type or debugging information but does not correspond to a section. Microsoft tools use this setting along with .file records (storage class FILE)."),
+    ]
+}
 
 flags! {
     name: SectionFlags,
@@ -36,41 +45,5 @@ flags! {
         (MEM_EXECUTE, 0x20000000, "The section can be executed as code."),
         (MEM_READ, 0x40000000, "The section can be read."),
         (MEM_WRITE, 0x80000000, "The section can be written to."),
-    ]
-}
-
-constants_enum! {
-    name: TlsCallbackFunctionReserved,
-    doc: "Possible reserved parameter values for TLS callback function.",
-    value_type: u32,
-    items: [
-        (ProcessAttach, 1, "A new process has started, including the first thread."),
-        (ReadAttach, 2, "A new thread has been created. This notification sent for all but the first thread."),
-        (ReadDetach, 3, "A thread is about to be terminated. This notification sent for all but the first thread."),
-        (ProcessDetach, 0, "A process is about to terminate, including the original thread."),
-
-    ]
-}
-
-constants_enum! {
-    name: ImportType,
-    doc: "",
-    value_type: u16,
-    items: [
-        (Code, 0, "Executable code."),
-        (Data, 1, "Data."),
-        (Const, 2, "Specified as CONST in the .def file."),
-    ]
-}
-
-constants_enum! {
-    name: ImportNameType,
-    doc: "",
-    value_type: u16,
-    items: [
-        (Ordinal, 0, "The import is by ordinal. This indicates that the value in the Ordinal/Hint field of the import header is the import's ordinal. If this constant is not specified, then the Ordinal/Hint field should always be interpreted as the import's hint."),
-        (Name, 1, "The import name is identical to the public symbol name."),
-        (NameNoprefix, 2, "The import name is the public symbol name, but skipping the leading ?, @, or optionally _."),
-        (NameUndecorate, 3, "The import name is the public symbol name, but skipping the leading ?, @, or optionally _, and truncating at the first @."),
     ]
 }

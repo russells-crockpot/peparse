@@ -1,3 +1,8 @@
+use crate::error::Error;
+use core::convert::TryFrom;
+
+pub trait CoffRelocationType: TryFrom<u16, Error = Error> {}
+
 constants_enum! {
     name: X86,
     doc: "",
@@ -20,7 +25,8 @@ constants_enum! {
         (Srel32, 0x000E, "A 32-bit signed span-dependent value emitted into the object."),
         (Pair, 0x000F, "A pair that must immediately follow every span-dependent value."),
         (Sspan32, 0x0010, "A 32-bit signed span-dependent value that is applied at link time."),
-    ]
+    ],
+    @markers: CoffRelocationType
 }
 
 constants_enum! {
@@ -43,7 +49,8 @@ constants_enum! {
         (ThumbBlx23, 0x0015, "The instruction is fixed up with the 25-bit relative displacement to the 4-byte aligned target. The low 2 bits of the displacement are zero and are not stored. This relocation corresponds to a Thumb-2 BLX instruction."),
         (Pair, 0x0016, "The relocation is valid only when it immediately follows a ARM_REFHI or THUMB_REFHI. Its SymbolTableIndex contains a displacement and not an index into the symbol table."),
 
-    ]
+    ],
+    @markers: CoffRelocationType
 }
 
 constants_enum! {
@@ -70,7 +77,8 @@ constants_enum! {
         (Branch14, 0x0010, "The 14-bit offset to the relocation target, for instructions TBZ and TBNZ."),
         (Rel32, 0x0011, "The 32-bit relative address from the byte following the relocation."),
 
-    ]
+    ],
+    @markers: CoffRelocationType
 }
 
 constants_enum! {
@@ -105,7 +113,8 @@ constants_enum! {
         (ShmPair, 0x0018, "The relocation is valid only when it immediately follows a REFHALF, RELHALF, or RELLO relocation. The SymbolTableIndex field of the relocation contains a displacement and not an index into the symbol table."),
         (ShmNomode, 0x8000, "The relocation ignores section mode."),
 
-    ]
+    ],
+    @markers: CoffRelocationType
 }
 
 constants_enum! {
@@ -132,7 +141,8 @@ constants_enum! {
         (Gprel, 0x0015, "The 16-bit signed displacement of the target relative to the GP register."),
         (Token, 0x0016, "The CLR token."),
 
-    ]
+    ],
+    @markers: CoffRelocationType
 }
 
 constants_enum! {
@@ -152,7 +162,8 @@ constants_enum! {
         (Secrel7, 0x000D, "A 7-bit offset from the base of the section that contains the target."),
         (Rel32, 0x0014, "The 32-bit relative displacement to the target. This supports the x86 relative branch and call instructions."),
 
-    ]
+    ],
+    @markers: CoffRelocationType
 }
 
 constants_enum! {
@@ -190,7 +201,8 @@ constants_enum! {
         (Gprel32, 0x001c, "A 32-bit GP-relative fixup."),
         (Addend, 0x001F, "The relocation is valid only when it immediately follows one of the following relocations: IMM14, IMM22, IMM64, GPREL22, LTOFF22, LTOFF64, SECREL22, SECREL64I, or SECREL32. Its value contains the addend to apply to instructions within a bundle, not for data."),
 
-    ]
+    ],
+    @markers: CoffRelocationType
 }
 
 constants_enum! {
@@ -214,7 +226,8 @@ constants_enum! {
         (Refwordnb, 0x0022, "The target's 32-bit RVA."),
         (Pair, 0x0025, "The relocation is valid only when it immediately follows a REFHI or SECRELHI relocation. Its SymbolTableIndex contains a displacement and not an index into the symbol table."),
 
-    ]
+    ],
+    @markers: CoffRelocationType
 }
 
 constants_enum! {
@@ -238,5 +251,6 @@ constants_enum! {
         (RSecrel, 0x000D, "The 32-bit offset of the target from the beginning of its section. This is used to support debugging information and static thread local storage."),
         (RToken, 0x000E, "The CLR token."),
 
-    ]
+    ],
+    @markers: CoffRelocationType
 }

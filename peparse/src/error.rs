@@ -7,6 +7,8 @@ pub enum Error {
         value_given: u64,
         constant_type: String,
     },
+    #[snafu(display("Invalid header magic value {}; expected {}", expected, received))]
+    InvalidHeaderMagic { expected: String, received: String },
     #[snafu(display("{}", error))]
     SegSourceError { error: segsource::Error },
     #[snafu(display("{}", error))]

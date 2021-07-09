@@ -9,6 +9,7 @@ macro_rules! constants_enum {
         items: [ $(($const_name:ident, $const_val:literal, $const_desc:literal),)+ ]
         $(, @markers: $($marker:ident),+)?
     ) => {
+        #[derive(PartialEq, Debug, Clone, Copy)]
         #[doc = $doc]
         pub enum $name {
             $(
@@ -42,10 +43,10 @@ macro_rules! constants_enum {
             }
         }
 
-        impl<'a> ::std::convert::TryFrom<&::segsource::Segment<'a, u8>> for $name {
+        impl<'s> ::std::convert::TryFrom<&::segsource::Segment<'s, u8>> for $name {
             type Error = crate::Error;
 
-            fn try_from(segment: &::segsource::Segment<'a, u8>)
+            fn try_from(segment: &::segsource::Segment<'s, u8>)
                 -> ::std::result::Result<Self, Self::Error>
             {
                 match segment.next_int::<$type>()? {
@@ -79,10 +80,17 @@ macro_rules! flags {
             }
         }
 
-        impl<'a> ::std::convert::TryFrom<&::segsource::Segment<'a, u8>> for $name {
+        impl::std::convert::From<$type> for $name {
+
+            fn from(value: $type) -> Self {
+                Self::from_bits_truncate(value)
+            }
+        }
+
+        impl<'s> ::std::convert::TryFrom<&::segsource::Segment<'s, u8>> for $name {
             type Error = crate::Error;
 
-            fn try_from(segment: &::segsource::Segment<'a, u8>)
+            fn try_from(segment: &::segsource::Segment<'s, u8>)
                 -> ::std::result::Result<Self, Self::Error>
             {
                 Ok(Self::from_bits_truncate(segment.next_int()?))

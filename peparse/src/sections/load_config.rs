@@ -3,7 +3,7 @@ use segsource::TryFromSegment;
 
 pub const IMAGE_GUARD_CF_FUNCTION_TABLE_SIZE_SHIFT: u32 = 28;
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error), also_needs(is_32_plus: bool))]
 pub struct LoadConfig {
     /// Flags that indicate attributes of the file, currently unused.
@@ -40,7 +40,7 @@ pub struct LoadConfig {
     /// [x86 only] The VA of a list of addresses where the LOCK prefix is used so that they can be
     /// replaced with NOP on single processor machines.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
-    pub lock_prefix_table: u64,
+    pub lock_prefix_table: Va,
 
     /// Maximum allocation size, in bytes.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
@@ -75,7 +75,7 @@ pub struct LoadConfig {
 
     /// [x86 only] The VA of the sorted table of RVAs of each valid, unique SE handler in the image.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
-    pub se_handler_table: u64,
+    pub se_handler_table: Va,
 
     /// [x86 only] The count of unique handlers in the table.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
@@ -83,15 +83,15 @@ pub struct LoadConfig {
 
     /// The VA where Control Flow Guard check-function pointer is stored.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
-    pub guard_cf_check_function_pointer: u64,
+    pub guard_cf_check_function_pointer: Va,
 
     /// The VA where Control Flow Guard dispatch-function pointer is stored.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
-    pub guard_cf_dispatch_function_pointer: u64,
+    pub guard_cf_dispatch_function_pointer: Va,
 
     /// The VA of the sorted table of RVAs of each Control Flow Guard function in the image.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
-    pub guard_cf_function_table: u64,
+    pub guard_cf_function_table: Va,
 
     /// The count of unique RVAs in the above table.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
@@ -104,7 +104,7 @@ pub struct LoadConfig {
     //pub code_integrity: u
     /// The VA where Control Flow Guard address taken IAT table is stored.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
-    pub guard_address_taken_iat_entry_table: u64,
+    pub guard_address_taken_iat_entry_table: Va,
 
     /// The count of unique RVAs in the above table.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
@@ -112,7 +112,7 @@ pub struct LoadConfig {
 
     /// The VA where Control Flow Guard long jump target table is stored.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
-    pub guard_long_jump_target_table: u64,
+    pub guard_long_jump_target_table: Va,
 
     /// The count of unique RVAs in the above table.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]

@@ -33,7 +33,7 @@ flags! {
     ]
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct DebugDirectory {
     /// Reserved, must be zero.
@@ -61,7 +61,7 @@ pub struct DebugDirectory {
     pub pointer_to_raw_data: u32,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 ///TODO the structure  uses bitfields. I need to check to see how those work better.
 pub struct FrameFpo {
@@ -97,18 +97,18 @@ pub struct FrameFpo {
 }
 
 //TODO figure out the format of these sections.
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct DebugSubsection {}
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct DebugSymbolSubsection {}
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct DebugPrecompiledSubsection {}
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct DebugTypeSubsection {}

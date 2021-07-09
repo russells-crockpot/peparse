@@ -3,13 +3,14 @@ use super::constants::{
 };
 use crate::{
     error::{Error, Result},
+    image::OptionalHeader,
     sections::SectionNumber,
     util::next_different_sizes,
 };
 use core::convert::TryFrom;
 use segsource::TryFromSegment;
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct CoffFileHeader {
     /// The number that identifies the type of target machine.
@@ -39,9 +40,14 @@ pub struct CoffFileHeader {
 
     /// The flags that indicate the attributes of the file.
     pub characteristics: Characteristics,
+
+    #[from_seg(
+        if(size_of_optional_header > 0),
+        parser(OptionalHeader::try_from(&segment.next_n(size_of_optional_header as usize)?)))]
+    pub optional_header: Option<OptionalHeader>,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct CoffRelocations {
     virtual_address: u32,
@@ -55,7 +61,7 @@ impl CoffRelocations {
     }
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct CoffLineNumber {
     /// This is a union of two fields: SymbolTableIndex and VirtualAddress. Whether SymbolTableIndex

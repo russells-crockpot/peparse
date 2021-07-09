@@ -1,14 +1,20 @@
-use crate::{error::Error, Rva, Va};
-use segsource::TryFromSegment;
+use crate::{
+    error::{Error, Result},
+    Rva,
+};
+use core::convert::TryFrom;
+use segsource::{DataSegment, Endidness, TryFromSegment};
 
-#[derive(TryFromSegment)]
+//TODO add a common Function enum
+
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
-pub struct MipsFunction {
+pub struct Mips32Function {
     /// The VA of the corresponding function.
-    pub begin_address: Va,
+    pub begin_address: u32,
 
     /// The VA of the end of the function.
-    pub end_address: Va,
+    pub end_address: u32,
 
     /// The pointer to the exception handler to be executed.
     pub exception_handler: u32,
@@ -17,18 +23,43 @@ pub struct MipsFunction {
     pub handler_data: u32,
 
     /// The VA of the end of the function's prolog.
-    pub prolog_end_address: Va,
+    pub prolog_end_address: u32,
 }
 
-#[derive(TryFromSegment)]
-#[from_seg(error(crate::Error))]
 pub struct ArmFunction {
     /// The VA of the corresponding function.
-    pub begin_address: Va,
+    pub begin_address: u32,
 
     /// The number of instructions in the function's prolog.
-    prolog_length: u8,
-    // TODO Others have nonstandard byte lengths...
+    pub prolog_length: u8,
+
+    pub function_length: u32,
+
+    pub is_32_bit: bool,
+
+    pub has_exception_handler: bool,
+}
+
+impl<'s> TryFrom<&DataSegment<'s>> for ArmFunction {
+    type Error = Error;
+
+    fn try_from(segment: &DataSegment<'s>) -> Result<Self> {
+        let begin_address = segment.next_u32()?;
+        let mut remaining = segment.next_u32()?;
+        let has_exception_handler = remaining & 1 == 1;
+        remaining >>= 1;
+        let is_32_bit = remaining & 1 == 1;
+        remaining >>= 1;
+        let function_length = remaining & 0x3fffff;
+        remaining >>= 22;
+        Ok(Self {
+            begin_address,
+            prolog_length: remaining as u8,
+            function_length,
+            is_32_bit,
+            has_exception_handler,
+        })
+    }
 }
 
 pub struct X64Function {

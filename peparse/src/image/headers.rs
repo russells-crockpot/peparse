@@ -1,11 +1,24 @@
 use super::constants::{DllCharacteristics, WindowsSubsystem};
 use crate::{
+    coff::CoffFileHeader,
     error::{Error, Result},
     util::next_different_sizes,
+    Rva,
 };
 use segsource::TryFromSegment;
 
-#[derive(TryFromSegment)]
+constants_enum! {
+    name: ImageType,
+    doc: "",
+    value_type: u16,
+    items: [
+        (Pe, 0x010b, "Portable Executable."),
+        (Rom, 0x0107, "."),
+        (Pe32Plus, 0x020b, "Portable Executable 32+."),
+    ]
+}
+
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct MzHeader {
     #[from_seg(error_if(
@@ -15,30 +28,31 @@ pub struct MzHeader {
             received: format!("{:04x}", signature),
         }
     ))]
-    signature: u16,
-    extra_bytes: u16,
-    pages: u16,
-    relocation_items: u16,
-    header_size: u16,
-    min_allocation: u16,
-    max_allocation: u16,
-    initial_ss: u16,
-    initial_sp: u16,
-    checksum: u16,
-    initial_ip: u16,
-    initial_cs: u16,
-    relocation_table: u16,
-    overlay: u16,
+    pub signature: u16,
+    pub extra_bytes: u16,
+    pub pages: u16,
+    pub relocation_items: u16,
+    pub header_size: u16,
+    pub min_allocation: u16,
+    pub max_allocation: u16,
+    pub initial_ss: u16,
+    pub initial_sp: u16,
+    pub checksum: u16,
+    pub initial_ip: u16,
+    pub initial_cs: u16,
+    pub relocation_table: u16,
+    pub overlay: u16,
+    #[from_seg(move_to(0x3c))]
+    pub pe_offset: u32,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct OptionalHeader {
-    //TODO add a way to parse the value, only if it equals a certain value.
     /// The unsigned integer that identifies the state of the image file. The most common number is
     /// 0x10B, which identifies it as a normal executable file. 0x107 identifies it as a ROM image,
     /// and 0x20B identifies it as a PE32+ executable.
-    pub magic: u16,
+    pub image_type: ImageType,
 
     /// The linker major version number.
     pub linker_major_version: u8,
@@ -70,17 +84,23 @@ pub struct OptionalHeader {
 
     /// The address that is relative to the image base of the beginning-of-data section when it is
     /// loaded into memory.
-    #[from_seg(if(magic == 0x20b))]
-    base_of_data: Option<u32>,
+    #[from_seg(if(image_type == ImageType::Pe32Plus))]
+    pub base_of_data: Option<u32>,
+
+    #[from_seg(also_pass(
+         (image_type == ImageType::Pe32Plus || image_type == ImageType::Pe) : bool
+    ))]
+    pub windows_specific: OptionalHeaderWindowsSpecificFields,
 }
-#[derive(TryFromSegment)]
-#[from_seg(error(crate::Error), also_needs(magic: u16))]
+
+#[derive(TryFromSegment, Debug, Clone)]
+#[from_seg(error(crate::Error), also_needs(is_pe32_plus: bool))]
 pub struct OptionalHeaderWindowsSpecificFields {
     /// The preferred address of the first byte of image when loaded into memory; must be a multiple
     /// of 64 K. The default for DLLs is 0x10000000. The default for Windows CE EXEs is 0x00010000.
     /// The default for Windows NT, Windows 2000, Windows XP, Windows 95, Windows 98, and Windows Me
     /// is 0x00400000.
-    #[from_seg(parser(next_different_sizes::<u32, u64>(magic != 0x20b, &segment)))]
+    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
     pub image_base: u64,
 
     /// The alignment (in bytes) of sections when they are loaded into memory. It must be greater
@@ -135,20 +155,20 @@ pub struct OptionalHeaderWindowsSpecificFields {
 
     /// The size of the stack to reserve. Only SizeOfStackCommit is committed; the rest is made
     /// available one page at a time until the reserve size is reached.
-    #[from_seg(parser(next_different_sizes::<u32, u64>(magic != 0x20b, &segment)))]
+    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
     pub size_of_stack_reserve: u64,
 
     /// The size of the stack to commit.
-    #[from_seg(parser(next_different_sizes::<u32, u64>(magic != 0x20b, &segment)))]
+    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
     pub size_of_stack_commit: u64,
 
     /// The size of the local heap space to reserve. Only SizeOfHeapCommit is committed; the rest is
     /// made available one page at a time until the reserve size is reached.
-    #[from_seg(parser(next_different_sizes::<u32, u64>(magic != 0x20b, &segment)))]
+    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
     pub size_of_heap_reserve: u64,
 
     /// The size of the local heap space to commit.
-    #[from_seg(parser(next_different_sizes::<u32, u64>(magic != 0x20b, &segment)))]
+    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
     pub size_of_heap_commit: u64,
 
     /// Reserved, must be zero.
@@ -159,14 +179,14 @@ pub struct OptionalHeaderWindowsSpecificFields {
     pub number_of_rva_and_sizes: u32,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct DataDirectoryPointer {
     pub rva: u32,
     pub size: u32,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct OptionalHeaderDataDirectories {
     /// The export table address and size.
@@ -218,7 +238,7 @@ pub struct OptionalHeaderDataDirectories {
     _reserved: u64,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct AttributeCertificate {
     /// Specifies the length of the attribute certificate entry.
@@ -234,34 +254,34 @@ pub struct AttributeCertificate {
     pub _todo: u8,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct DelayLoadImport {
     _attributes: u32,
 
     /// The RVA of the name of the DLL to be loaded. The name resides in the read-only data section
     /// of the image.
-    pub name: u32,
+    pub name: Rva,
 
     /// The RVA of the module handle (in the data section of the image) of the DLL to be delay-
     /// loaded. It is used for storage by the routine that is supplied to manage delay-loading.
-    pub module_handle: u32,
+    pub module_handle: Rva,
 
     /// The RVA of the delay-load import address table.
-    pub delay_import_address_table: u32,
+    pub delay_import_address_table: Rva,
 
     /// The RVA of the delay-load name table, which contains the names of the imports that might
     /// need to be loaded. This matches the layout of the import name table.
-    pub delay_import_name_table: u32,
+    pub delay_import_name_table: Rva,
 
     /// The RVA of the bound delay-load address table, if it exists.
-    pub bound_delay_import_table: u32,
+    pub bound_delay_import_table: Rva,
 
     /// The RVA of the unload delay-load address table, if it exists. This is an exact copy of the
     /// delay import address table. If the caller unloads the DLL, this table should be copied back
     /// over the delay import address table so that subsequent calls to the DLL continue to use the
     /// thunking mechanism correctly.
-    pub unload_delay_import_table: u32,
+    pub unload_delay_import_table: Rva,
 
     /// The timestamp of the DLL to which this image has been bound.
     pub time_stamp: u32,

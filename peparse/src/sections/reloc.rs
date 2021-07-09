@@ -1,11 +1,11 @@
 use crate::{
     error::{Error, Result},
-    Rva, Va,
+    Rva,
 };
 use core::convert::TryFrom;
 use segsource::{DataSegment, TryFromSegment};
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct RelocationBlock {
     /// The image base plus the page RVA is added to each offset to create the VA where the base

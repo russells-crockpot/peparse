@@ -1,7 +1,7 @@
 use crate::error::Error;
 use segsource::TryFromSegment;
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct ArchiveMember {
     /// The name of the archive member, with a slash (/) appended to terminate the name. If the

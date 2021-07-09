@@ -6,7 +6,7 @@ use crate::{
 use core::convert::TryFrom;
 use segsource::{DataSegment, TryFromSegment};
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct ResourceDirectory {
     /// Resource flags. This field is reserved for future use. It is currently set to zero.
@@ -30,6 +30,7 @@ pub struct ResourceDirectory {
     pub number_of_id_entries: u16,
 }
 
+#[derive(Debug, Clone)]
 pub enum DirectoryEntryOffset {
     /// Address of a Resource Data entry (a leaf).
     DataEntry(u32),
@@ -50,7 +51,7 @@ impl<'s> TryFrom<&DataSegment<'s>> for DirectoryEntryOffset {
     }
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct NameDirectoryEntry {
     /// The offset of a string that gives the Type, Name, or Language ID entry, depending on level
@@ -60,7 +61,7 @@ pub struct NameDirectoryEntry {
     pub offset: DirectoryEntryOffset,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct IdDirectoryEntry {
     /// A 32-bit integer that identifies the Type, Name, or Language ID entry.
@@ -69,7 +70,7 @@ pub struct IdDirectoryEntry {
     pub offset: DirectoryEntryOffset,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct ResourceDirectoryString {
     /// The size of the string, not including length field itself.
@@ -78,7 +79,7 @@ pub struct ResourceDirectoryString {
     pub string: Vec<u8>,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct DataEntry {
     /// The address of a unit of resource data in the Resource Data area.

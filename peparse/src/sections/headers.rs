@@ -2,7 +2,7 @@ use super::constants::SectionFlags;
 use crate::error::Error;
 use segsource::TryFromSegment;
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct SectionHeader {
     /// An 8-byte, null-padded UTF-8 encoded string. If the string is exactly 8 characters long,

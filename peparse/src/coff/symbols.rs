@@ -9,7 +9,7 @@ use crate::{
 use core::convert::TryFrom;
 use segsource::TryFromSegment;
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct CoffSymbol {
     /// The name of the symbol, represented by a union of three structures. An array of 8 bytes is
@@ -37,6 +37,7 @@ pub struct CoffSymbol {
 }
 
 //TODO add TryFrom<&DataSegment>
+#[derive(Debug, Clone)]
 pub enum AuxSymbol {
     FunctionDef(FunctionDefSymbol),
     Bf(BfSymbol),
@@ -47,7 +48,7 @@ pub enum AuxSymbol {
     ClrTokenDef(ClrTokenDefSymbol),
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct FunctionDefSymbol {
     /// The symbol-table index of the corresponding .bf (begin function) symbol record.
@@ -70,7 +71,7 @@ pub struct FunctionDefSymbol {
     _unused: u8,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct BfSymbol {
     /// The actual ordinal line number (1, 2, 3, and so on) within the source file, corresponding to
@@ -86,7 +87,7 @@ pub struct BfSymbol {
     _unused: u8,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct EfSymbol {
     /// The actual ordinal line number (1, 2, 3, and so on) within the source file, corresponding to
@@ -97,7 +98,7 @@ pub struct EfSymbol {
     _unused: u8,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct WekExternalSymbol {
     /// The symbol-table index of sym2, the symbol to be linked if sym1 is not found.
@@ -116,7 +117,7 @@ pub struct WekExternalSymbol {
     _unused: u8,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct FileSymbol {
     /// An ANSI string that gives the name of the source file. This is padded with nulls if it is
@@ -124,7 +125,7 @@ pub struct FileSymbol {
     name: [u8; 18],
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct SectionSymbol {
     /// The size of section data; the same as SizeOfRawData in the section header.
@@ -152,7 +153,7 @@ pub struct SectionSymbol {
     _unused: u8,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct ClrTokenDefSymbol {
     //TODO add error_if

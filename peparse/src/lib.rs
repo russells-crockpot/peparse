@@ -4,7 +4,7 @@
 #[macro_use]
 extern crate peparse_internal_macros;
 
-//mod to_expand;
+mod to_expand;
 //mod expanded;
 
 mod base;
@@ -19,4 +19,7 @@ pub mod sections;
 pub mod util;
 
 pub type Rva = u32;
-pub type Va = u32;
+
+/// A virtual address. Unlike with [`Rva`]s, [`Va`]s have a different size depending on if we're
+/// dealing with a PE32 or a PE32+. We use the larger one since a u32 can be represented by a u64.
+pub type Va = u64;

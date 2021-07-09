@@ -1,7 +1,7 @@
 use crate::{error::Error, Rva};
 use segsource::TryFromSegment;
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct ExportDirectory {
     /// Reserved, must be 0.
@@ -42,7 +42,7 @@ pub struct ExportDirectory {
     pub ordinal_table: Rva,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct ExportAddress {
     /// The address of the exported symbol when loaded into memory, relative to the image base. For

@@ -1,7 +1,7 @@
 use crate::{error::Error, Rva};
 use segsource::TryFromSegment;
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct ImportDirectory {
     /// The RVA of the import lookup table. This table contains a name or ordinal for each import.
@@ -24,19 +24,19 @@ pub struct ImportDirectory {
     pub import_address_table: Rva,
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct ImportLookup {
     //TODO the have odd sizes...
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct HintOrName {
     //TODO the have odd sizes...
 }
 
-#[derive(TryFromSegment)]
+#[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error))]
 pub struct ImportAddress {
     //TODO

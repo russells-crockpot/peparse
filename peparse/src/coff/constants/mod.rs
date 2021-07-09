@@ -124,6 +124,7 @@ macro_rules! impl_sym_type {
         doc: $doc:literal,
         items: [ $(($const_name:ident, $const_val:literal, $const_desc:literal),)+ ]
     ) => {
+        #[derive(Debug, Clone)]
         #[doc=$doc]
         pub enum $name {
             $(
@@ -185,6 +186,7 @@ impl_sym_type! {
     ]
 }
 
+#[derive(Debug, Clone)]
 pub struct SymbolType {
     pub value: u16,
     pub base_type: SymbolBaseType,

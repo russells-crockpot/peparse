@@ -101,13 +101,13 @@ pub struct OptionalHeader {
 }
 
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(Error), also_needs(is_pe32_plus: bool))]
+#[from_seg(error(Error), also_needs(is_32_plus: bool))]
 pub struct WindowsSpecificFields {
     /// The preferred address of the first byte of image when loaded into memory; must be a multiple
     /// of 64 K. The default for DLLs is 0x10000000. The default for Windows CE EXEs is 0x00010000.
     /// The default for Windows NT, Windows 2000, Windows XP, Windows 95, Windows 98, and Windows Me
     /// is 0x00400000.
-    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
+    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
     #[debug(format = "0x{:08x}")]
     pub image_base: Va,
 
@@ -167,23 +167,23 @@ pub struct WindowsSpecificFields {
 
     /// The size of the stack to reserve. Only SizeOfStackCommit is committed; the rest is made
     /// available one page at a time until the reserve size is reached.
-    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
+    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
     #[debug(format = "0x{:x}")]
     pub size_of_stack_reserve: u64,
 
     /// The size of the stack to commit.
-    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
+    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
     #[debug(format = "0x{:x}")]
     pub size_of_stack_commit: u64,
 
     /// The size of the local heap space to reserve. Only SizeOfHeapCommit is committed; the rest is
     /// made available one page at a time until the reserve size is reached.
-    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
+    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
     #[debug(format = "0x{:x}")]
     pub size_of_heap_reserve: u64,
 
     /// The size of the local heap space to commit.
-    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
+    #[from_seg(parser(next_different_sizes::<u32, u64>(!is_32_plus, &segment)))]
     #[debug(format = "0x{:x}")]
     pub size_of_heap_commit: u64,
 

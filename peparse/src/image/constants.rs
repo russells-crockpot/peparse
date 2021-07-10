@@ -25,17 +25,17 @@ flags! {
     doc: "",
     value_type: u16,
     items: [
-        (HIGH_ENTROPY_VA, 0x0020, "Image can handle a high entropy 64-bit virtual address space."),
-        (DYNAMIC_BASE, 0x0040, "DLL can be relocated at load time."),
-        (FORCE_INTEGRITY, 0x0080, "Code Integrity checks are enforced."),
-        (NX_COMPAT, 0x0100, "Image is NX compatible."),
-        (NO_ISOLATION, 0x0200, "Isolation aware, but do not isolate the image."),
-        (NO_SEH, 0x0400, "Does not use structured exception (SE) handling. No SE handler may be called in this image."),
-        (NO_BIND, 0x0800, "Do not bind the image."),
-        (APPCONTAINER, 0x1000, "Image must execute in an AppContainer."),
-        (WDM_DRIVER, 0x2000, "A WDM driver."),
-        (GUARD_CF, 0x4000, "Image supports Control Flow Guard."),
-        (TERMINAL_SERVER_AWARE, 0x8000, "Terminal Server aware."),
+        (HighEntropyVa, 0x0020, "Image can handle a high entropy 64-bit virtual address space."),
+        (DynamicBase, 0x0040, "DLL can be relocated at load time."),
+        (ForceIntegrity, 0x0080, "Code Integrity checks are enforced."),
+        (NxCompat, 0x0100, "Image is NX compatible."),
+        (NoIsolation, 0x0200, "Isolation aware, but do not isolate the image."),
+        (NoSeh, 0x0400, "Does not use structured exception (SE) handling. No SE handler may be called in this image."),
+        (NoBind, 0x0800, "Do not bind the image."),
+        (Appcontainer, 0x1000, "Image must execute in an AppContainer."),
+        (WdmDriver, 0x2000, "A WDM driver."),
+        (GuardCf, 0x4000, "Image supports Control Flow Guard."),
+        (TerminalServerAware, 0x8000, "Terminal Server aware."),
     ]
 }
 
@@ -48,6 +48,7 @@ constants_enum! {
         (Rev2, 0x0200, "Version 2 is the current version of the Win_Certificate structure."),
     ]
 }
+
 constants_enum! {
     name: WinCertType,
     doc: "",

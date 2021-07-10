@@ -4,9 +4,6 @@
 #[macro_use]
 extern crate peparse_internal_macros;
 
-mod to_expand;
-//mod expanded;
-
 mod base;
 pub use base::*;
 

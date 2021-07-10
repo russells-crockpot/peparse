@@ -11,7 +11,7 @@ use core::convert::TryFrom;
 use segsource::TryFromSegment;
 
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(Error))]
 pub struct CoffFileHeader {
     /// The number that identifies the type of target machine.
     pub machine: Machine,
@@ -48,7 +48,7 @@ pub struct CoffFileHeader {
 }
 
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(Error))]
 pub struct CoffRelocations {
     virtual_address: u32,
     symbol_table_index: u32,
@@ -62,7 +62,7 @@ impl CoffRelocations {
 }
 
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(Error))]
 pub struct CoffLineNumber {
     /// This is a union of two fields: SymbolTableIndex and VirtualAddress. Whether SymbolTableIndex
     /// or RVA is used depends on the value of Linenumber.

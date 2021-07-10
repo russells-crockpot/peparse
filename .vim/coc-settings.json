@@ -45,6 +45,7 @@
     "expfunc",
     "longjmp",
     "pdata",
+    "ptrs",
     "pyperclip",
     "regs",
     "reloc",

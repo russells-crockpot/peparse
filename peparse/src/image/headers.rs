@@ -3,8 +3,9 @@ use crate::{
     coff::CoffFileHeader,
     error::{Error, Result},
     util::next_different_sizes,
-    Rva,
+    Rva, Va,
 };
+use custom_debug_derive::Debug;
 use segsource::TryFromSegment;
 
 constants_enum! {
@@ -19,7 +20,7 @@ constants_enum! {
 }
 
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(Error))]
 pub struct MzHeader {
     #[from_seg(error_if(
         signature != 0x5a4d,
@@ -47,7 +48,7 @@ pub struct MzHeader {
 }
 
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(Error))]
 pub struct OptionalHeader {
     /// The unsigned integer that identifies the state of the image file. The most common number is
     /// 0x10B, which identifies it as a normal executable file. 0x107 identifies it as a ROM image,
@@ -62,55 +63,64 @@ pub struct OptionalHeader {
 
     /// The size of the code (text) section, or the sum of all code sections if there are multiple
     /// sections.
+    #[debug(format = "0x{:x}")]
     pub size_of_code: u32,
 
     /// The size of the initialized data section, or the sum of all such sections if there are
     /// multiple data sections.
+    #[debug(format = "0x{:x}")]
     pub size_of_initialized_data: u32,
 
     /// The size of the uninitialized data section (BSS), or the sum of all such sections if there
     /// are multiple BSS sections.
+    #[debug(format = "0x{:x}")]
     pub size_of_uninitialized_data: u32,
 
     /// The address of the entry point relative to the image base when the executable file is loaded
     /// into memory. For program images, this is the starting address. For device drivers, this is
     /// the address of the initialization function. An entry point is optional for DLLs. When no
     /// entry point is present, this field must be zero.
+    #[debug(format = "0x{:x}")]
     pub address_of_entry_point: u32,
 
     /// The address that is relative to the image base of the beginning-of-code section when it is
     /// loaded into memory.
+    #[debug(format = "0x{:x}")]
     pub base_of_code: u32,
 
     /// The address that is relative to the image base of the beginning-of-data section when it is
     /// loaded into memory.
-    #[from_seg(if(image_type == ImageType::Pe32Plus))]
+    #[from_seg(if(image_type == ImageType::Pe))]
     pub base_of_data: Option<u32>,
 
-    #[from_seg(also_pass(
-         (image_type == ImageType::Pe32Plus || image_type == ImageType::Pe) : bool
-    ))]
-    pub windows_specific: OptionalHeaderWindowsSpecificFields,
+    #[from_seg(also_pass((image_type == ImageType::Pe32Plus) : bool))]
+    pub windows_specific: WindowsSpecificFields,
+
+    #[from_seg(size(windows_specific.number_of_rva_and_sizes), parse_each)]
+    pub data_directory_ptrs: Vec<DataDirectoryPointer>,
 }
 
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error), also_needs(is_pe32_plus: bool))]
-pub struct OptionalHeaderWindowsSpecificFields {
+#[from_seg(error(Error), also_needs(is_pe32_plus: bool))]
+pub struct WindowsSpecificFields {
     /// The preferred address of the first byte of image when loaded into memory; must be a multiple
     /// of 64 K. The default for DLLs is 0x10000000. The default for Windows CE EXEs is 0x00010000.
     /// The default for Windows NT, Windows 2000, Windows XP, Windows 95, Windows 98, and Windows Me
     /// is 0x00400000.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
-    pub image_base: u64,
+    #[debug(format = "0x{:08x}")]
+    pub image_base: Va,
 
     /// The alignment (in bytes) of sections when they are loaded into memory. It must be greater
     /// than or equal to FileAlignment. The default is the page size for the architecture.
+    #[debug(format = "0x{:x}")]
     pub section_alignment: u32,
 
     /// The alignment factor (in bytes) that is used to align the raw data of sections in the image
     /// file. The value should be a power of 2 between 512 and 64 K, inclusive. The default is 512.
     /// If the SectionAlignment is less than the architecture's page size, then FileAlignment must
     /// match SectionAlignment.
+    #[debug(format = "0x{:x}")]
     pub file_alignment: u32,
 
     /// The major version number of the required operating system.
@@ -136,17 +146,19 @@ pub struct OptionalHeaderWindowsSpecificFields {
 
     /// The size (in bytes) of the image, including all headers, as the image is loaded in memory.
     /// It must be a multiple of SectionAlignment.
+    #[debug(format = "0x{:x}")]
     pub size_of_image: u32,
 
     /// The combined size of an MS-DOS stub, PE header, and section headers rounded up to a multiple
     /// of FileAlignment.
+    #[debug(format = "0x{:x}")]
     pub size_of_headers: u32,
 
     /// The image file checksum. The algorithm for computing the checksum is incorporated into
     /// IMAGHELP.DLL. The following are checked for validation at load time: all drivers, any DLL
     /// loaded at boot time, and any DLL that is loaded into a critical Windows process.
+    #[debug(format = "0x{:x}")]
     pub check_sum: u32,
-
     /// The subsystem that is required to run this image. For more information.
     pub subsystem: WindowsSubsystem,
 
@@ -156,39 +168,46 @@ pub struct OptionalHeaderWindowsSpecificFields {
     /// The size of the stack to reserve. Only SizeOfStackCommit is committed; the rest is made
     /// available one page at a time until the reserve size is reached.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
+    #[debug(format = "0x{:x}")]
     pub size_of_stack_reserve: u64,
 
     /// The size of the stack to commit.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
+    #[debug(format = "0x{:x}")]
     pub size_of_stack_commit: u64,
 
     /// The size of the local heap space to reserve. Only SizeOfHeapCommit is committed; the rest is
     /// made available one page at a time until the reserve size is reached.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
+    #[debug(format = "0x{:x}")]
     pub size_of_heap_reserve: u64,
 
     /// The size of the local heap space to commit.
     #[from_seg(parser(next_different_sizes::<u32, u64>(!is_pe32_plus, &segment)))]
+    #[debug(format = "0x{:x}")]
     pub size_of_heap_commit: u64,
 
     /// Reserved, must be zero.
+    ///
+    /// TODO: It doesn't look like these are always 0...
     _loader_flags: u32,
 
     /// The number of data-directory entries in the remainder of the optional header. Each describes
     /// a location and size.
+    #[debug(format = "0x{:x}")]
     pub number_of_rva_and_sizes: u32,
 }
 
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(Error))]
 pub struct DataDirectoryPointer {
-    pub rva: u32,
+    pub rva: Rva,
     pub size: u32,
 }
 
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
-pub struct OptionalHeaderDataDirectories {
+#[from_seg(error(Error))]
+pub struct DataDirectory {
     /// The export table address and size.
     pub export_table: DataDirectoryPointer,
 
@@ -239,7 +258,7 @@ pub struct OptionalHeaderDataDirectories {
 }
 
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(Error))]
 pub struct AttributeCertificate {
     /// Specifies the length of the attribute certificate entry.
     pub dw_length: u32,
@@ -255,7 +274,7 @@ pub struct AttributeCertificate {
 }
 
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(Error))]
 pub struct DelayLoadImport {
     _attributes: u32,
 
@@ -284,5 +303,5 @@ pub struct DelayLoadImport {
     pub unload_delay_import_table: Rva,
 
     /// The timestamp of the DLL to which this image has been bound.
-    pub time_stamp: u32,
+    pub timestamp: u32,
 }

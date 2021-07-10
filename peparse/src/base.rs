@@ -1,7 +1,7 @@
 use crate::{
     coff::CoffFileHeader,
     error::{Error, Result},
-    image::{MzHeader, OptionalHeader},
+    image::{DataDirectoryPointer, MzHeader, OptionalHeader},
 };
 use core::convert::TryFrom;
 use segsource::{
@@ -25,7 +25,15 @@ pub struct PeFile {
     ))]
     _pe_signature: u32,
 
+    #[from_seg(mut)]
     pub coff_header: CoffFileHeader,
+
+    #[from_seg(
+        parser(coff_header.optional_header.take().unwrap()),
+        try=as_is,
+        mut
+    )]
+    pub optional_header: OptionalHeader,
 }
 
 // impl<S: U8Source> TryFrom<&S> for PeFile {

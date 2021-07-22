@@ -1,4 +1,4 @@
-use super::constants::SectionFlags;
+use super::SectionFlags;
 use crate::{
     error::{Error, Result},
     util::next_different_sizes,
@@ -10,6 +10,8 @@ fn parse_characteristics(segment: &DataSegment<'_>) -> Result<SectionFlags> {
     let val = 0x00f00000 & segment.next_u32()?;
     Ok(SectionFlags::from(val))
 }
+
+impl_section_specifics! { Tls, ".tls" }
 
 #[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(crate::Error), also_needs(is_32_plus: bool))]

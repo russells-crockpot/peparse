@@ -3,12 +3,18 @@
 
 #[macro_use]
 extern crate peparse_internal_macros;
+#[macro_use]
+extern crate paste;
+
+//mod to_expand;
+//mod expanded;
 
 mod base;
 pub use base::*;
 
 pub mod archive;
 pub mod coff;
+pub mod constants;
 mod error;
 pub mod image;
 pub use error::*;

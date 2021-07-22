@@ -5,21 +5,25 @@ edition = "2018"
 
 [dependencies]
 bytes = "1"
-hex = "0.4"
+hex = "0.4.3"
 bitflags = "1"
 snafu = "0.6"
 custom_debug_derive = "0.5.0"
+paste = "1"
 
 [dependencies.segsource]
 path = "../../segsource/segsource"
-features = ["memmap"]
-version = "0.1.0"
+features = ["memmap", "with-bytes"]
+version = "0.2.0"
 
 [dependencies.segsource-derive]
 path = "../../segsource/derive"
 features = ["syn-full"]
-version = "0.1.0"
+version = "0.2.0"
 
 [dependencies.peparse-internal-macros]
 path = "../macros"
 version = "0.0.1"
+
+[features]
+backtrace = ["snafu/backtraces", "segsource/backtrace"]

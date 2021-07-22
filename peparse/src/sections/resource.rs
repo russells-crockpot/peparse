@@ -6,8 +6,10 @@ use crate::{
 use core::convert::TryFrom;
 use segsource::{DataSegment, TryFromSegment};
 
+impl_section_specifics! { Resource, "." }
+
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(crate::Error), also_needs(is_32_plus: bool))]
 pub struct ResourceDirectory {
     /// Resource flags. This field is reserved for future use. It is currently set to zero.
     pub characteristics: u32,
@@ -93,4 +95,33 @@ pub struct DataEntry {
     pub codepage: u32,
 
     _reserved: u32,
+}
+
+constants_enum! {
+    name: ResourceType,
+    doc: "",
+    value_type: u16,
+    items: [
+        (Cursor, 1, ""),
+        (Bitmap, 2, ""),
+        (Icon, 3, ""),
+        (Menu, 4, ""),
+        (Dialog, 5, ""),
+        (String, 6, ""),
+        (FontDir, 7, ""),
+        (Font, 8, ""),
+        (Accelerator, 9, ""),
+        (RcData, 10, ""),
+        (MessageTable, 11, ""),
+        (GroupCursor, 12, ""),
+        (GroupIcon, 14, ""),
+        (Version, 16, ""),
+        (DlgInclude, 17, ""),
+        (PlugPlay, 19, ""),
+        (Vxd, 20, ""),
+        (AniCursor, 21, ""),
+        (AniIcon, 22, ""),
+        (Html, 23, ""),
+        (Manifest, 24, ""),
+    ]
 }

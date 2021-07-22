@@ -1,5 +1,5 @@
 use crate::error::Error;
-use segsource::TryFromSegment;
+use segsource::{BytesSource, Source, TryFromSegment};
 
 flags! {
     name: DegbugInfoType,
@@ -33,8 +33,10 @@ flags! {
     ]
 }
 
+impl_section_specifics! { Debug, ".debug" }
+
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(crate::Error), also_needs(is_32_plus: bool))]
 pub struct DebugDirectory {
     /// Reserved, must be zero.
     _characteristics: u32,

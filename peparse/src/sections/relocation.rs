@@ -5,8 +5,10 @@ use crate::{
 use core::convert::TryFrom;
 use segsource::{DataSegment, TryFromSegment};
 
+impl_section_specifics! { RelocationSection, ".reloc", RelocationBlock }
+
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(crate::Error), also_needs(is_32_plus: bool))]
 pub struct RelocationBlock {
     /// The image base plus the page RVA is added to each offset to create the VA where the base
     /// relocation must be applied.
@@ -15,15 +17,19 @@ pub struct RelocationBlock {
     /// The total number of bytes in the base relocation block, including the Page RVA and Block
     /// Size fields and the Type/Offset fields that follow.
     pub block_size: u32,
+
+    #[from_seg(parse_each, size(remaining))]
+    relocations: Vec<Relocation>,
 }
 
-pub struct RelocationType {
+#[derive(Debug, Clone)]
+pub struct Relocation {
     value: u16,
     pub base_type: BaseRelocationType,
     pub offset: u16,
 }
 
-impl<'s> TryFrom<&DataSegment<'s>> for RelocationType {
+impl<'s> TryFrom<&DataSegment<'s>> for Relocation {
     type Error = Error;
 
     fn try_from(segment: &DataSegment<'s>) -> Result<Self> {

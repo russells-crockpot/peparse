@@ -1,8 +1,10 @@
 use crate::{error::Error, Rva};
 use segsource::TryFromSegment;
 
+impl_section_specifics! { Export, ".edata" }
+
 #[derive(TryFromSegment, Debug, Clone)]
-#[from_seg(error(crate::Error))]
+#[from_seg(error(crate::Error), also_needs(is_32_plus: bool))]
 pub struct ExportDirectory {
     /// Reserved, must be 0.
     _export_flags: u32,

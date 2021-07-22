@@ -100,6 +100,13 @@ pub struct OptionalHeader {
     pub data_directory_ptrs: Vec<DataDirectoryPointer>,
 }
 
+impl OptionalHeader {
+    #[inline]
+    pub fn is_pe32_plus(&self) -> bool {
+        self.image_type == ImageType::Pe32Plus
+    }
+}
+
 #[derive(TryFromSegment, Debug, Clone)]
 #[from_seg(error(Error), also_needs(is_32_plus: bool))]
 pub struct WindowsSpecificFields {
